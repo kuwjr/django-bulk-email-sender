@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    Register
+    <div>{% include 'partials/_alert.html' %}</div>
+    <form action="{% url 'register' %}" method="post" >
+        {% csrf_token %}
+        <input name="username" placeholder="username" type="text" required>
+        <input name="email" placeholder="email" type="email" required>
+        <input name="password" placeholder="password" type="password" required>
+        <input name="password2" placeholder="confirm password" type="password" required>
+        <button type="submit" >Register</button>
+    </form>
+    <div  style="margin-top: 30px;">
+        <a href="{% url 'login' %}">Login</a>
+    </div>
+{% endblock %}
