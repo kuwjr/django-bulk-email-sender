@@ -13,8 +13,16 @@ def createNewBulkEmail(request):
         'form': SendEmailForm()
     }
     if request.method == 'POST':
+        # check if user is authenticated
+        if request.user.is_authenticated == False:
+            messages.error(request, 'You should be logged in!')
+            return render(request, "emails/email_form.html", context)
         # process form
         form = SendEmailForm(request.POST, request.FILES)
+        # check if csv file exists
+        if not request.FILES:
+            messages.error(request, 'CSV file unavailable!')
+            return render(request, "emails/email_form.html", context)
         # check whether it's valid:
         if form.is_valid():
             # get form data
@@ -37,7 +45,6 @@ def createNewBulkEmail(request):
 
             # create BulkEmail object
             be = BulkEmail.objects.create(user=request.user, title=title, subject=subject, content=content, recipients=allEmails, activated=False)
-            
             # send emails
             res = sendEmails(be)
             if res is not True:
@@ -55,8 +62,11 @@ def createNewBulkEmail(request):
         return render(request, "emails/email_form.html", context)
 
 def viewSingleBulkEmail(request, id):
-    sent_email = models.BulkEmail.objects.get(id=id, user_id=request.user.id)
-    context = {
-        'sent_email': sent_email
-    }
-    return render(request, "emails/email_form.html", context)
+    if request.user.is_authenticated:
+        sent_email = models.BulkEmail.objects.get(id=id, user_id=request.user.id)
+        context = {
+            'sent_email': sent_email
+        }
+        return render(request, "emails/email_form.html", context)
+    else:
+        return render(request, "emails/email_form.html")
